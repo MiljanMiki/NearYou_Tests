@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System.Security.Claims;
 using WebTemplate.DTOs;
 using WebTemplate.Services;
@@ -148,6 +150,57 @@ namespace WebTemplate.Controllers
             }
         }
 
+        //[HttpPut("{chatID}/{messageID")]
+        //[Authorize]
+        //public async Task<IActionResult> PutMessage(int chatID, int messageID,[FromBody] UpdateMessageDto dto)
+        //{
+        //    var userId = GetCurrentUserId();
+        //    if (!userId.HasValue)
+        //        return Unauthorized();
+
+        //   try
+        //    {
+        //        var response = await _chatService.UpdateMessageAsync(chatID, messageID, dto.NewMessageContent);
+        //        return Ok(response);
+        //    }
+        //    catch(KeyNotFoundException e)
+        //    {
+
+        //    }
+        //    catch(Exception e)
+        //    {
+
+        //    }
+
+        //}
+
+        [HttpDelete("{chatID}/{messageID}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteMessage(int chatID, int messageID)
+        {
+            var userId = GetCurrentUserId();
+            if (!userId.HasValue)
+                return Unauthorized();
+
+
+            try
+            {
+                await _chatService.DeleteMessage((int)userId, chatID, messageID);
+            }
+            catch(KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch(ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            return Ok($"Uspesno izbrisana poruka sa ID-jem {messageID} iz baze.");
+        }
         private int? GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -161,4 +214,13 @@ namespace WebTemplate.Controllers
         [MaxLength(1000)]
         public string Message { get; set; }
     }
+
+    public class UpdateMessageDto
+    {
+        [Required]
+        [MaxLength(1000)]
+        public string NewMessageContent { get; set; }
+    }
+
+
 }

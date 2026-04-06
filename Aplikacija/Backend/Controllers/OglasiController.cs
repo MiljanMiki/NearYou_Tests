@@ -60,49 +60,50 @@ namespace WebTemplate.Controllers
             return Ok(oglasi);
         }
 
-        // PUT: api/Oglasi/5
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutOglas(int id, OglasCreateDto oglasDto)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
+        //PUT: api/Oglasi/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutOglas(int id, OglasCreateDto oglasDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        //    var oglas = await _context.Oglasi.FindAsync(id);
-        //    if (oglas == null)
-        //    {
-        //        return NotFound();
-        //    }
+            var oglas = await _context.Oglasi.FindAsync(id);
+            if (oglas == null)
+            {
+                return NotFound();
+            }
 
-        //    var korisnik = await _context.Korisnici.FindAsync(oglasDto.PostavljacOglasaId);
-        //    if (korisnik == null)
-        //    {
-        //        return BadRequest("Korisnik nije pronađen");
-        //    }
 
-        //    oglas.Naziv = oglasDto.Naziv;
-        //    oglas.Opis = oglasDto.Opis;
-        //    oglas.PostavljacOglasa = korisnik;
+            oglas.Naziv = oglasDto.Naziv;
+            oglas.Opis = oglasDto.Opis;
+            oglas.Adresa = oglasDto.Adresa;
+            oglas.Grad = oglasDto.Grad;
+            oglas.Latitude = oglasDto.Latitude;
+            oglas.Longitude = oglasDto.Longitude;
+            oglas.Cena = oglasDto.Cena;
+            oglas.TipCene = oglasDto.TipCene;
+            //oglas.SlikaUrl = oglasDto.Slika.;
 
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!OglasExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!OglasExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
-        //    return NoContent();
-        //}
+            return NoContent();
+        }
 
         // POST: api/Oglasi
         [HttpPost]
@@ -258,6 +259,11 @@ namespace WebTemplate.Controllers
         private bool KorisnikExists(int id)
         {
             return _context.Korisnici.Any(e => e.ID == id);
+        }
+
+        private bool OglasExists(int id)
+        {
+            return _context.Oglasi.Any(e => e.ID == id);
         }
     }
 }

@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq.Expressions;
 using WebTemplate.DTOs;
 using WebTemplate.Hubs;
-using WebTemplate.Models;
 
 namespace WebTemplate.Services
 {
@@ -14,6 +15,9 @@ namespace WebTemplate.Services
         Task<ChatPorukeDto> GetChatWithMessagesAsync(int chatId, int userId);
         Task<PorukaDto> SendMessageAsync(int chatId, int senderId, string message);
         Task<ChatDto> GetChatAsync(int chatId);
+
+        Task<IActionResult> DeleteMessage(int userId, int chatId, int messageId);
+        Task<PorukaDto> UpdateMessageAsync(int chatId, int messageId, string message);
     }
 
     public class ChatService : IChatService
@@ -294,5 +298,68 @@ namespace WebTemplate.Services
                 _logger.LogError(ex, "Greška pri slanju SignalR notifikacije za chat {ChatId}", chatId);
             }
         }
+
+        public async Task<IActionResult> DeleteMessage(int userId,int chatId, int messageId)
+        {
+
+            var chat = await _context.Chatovi.FindAsync(chatId);
+            if (chat == null)
+                throw new KeyNotFoundException($"Chat sa ID {chatId} nije pronađen");
+            //ili samo ovo?
+            //var poruka = await _context.Poruke.FirstOrDefaultAsync(m => m.Id == messageId);
+            
+            var poruka = chat.Poruke.FirstOrDefault(m => m.Id == messageId);
+            if (poruka == null)
+                throw new KeyNotFoundException($"Poruka sa ID {messageId} ne postoji!");
+
+            if (userId != poruka.PosiljalacId)
+                throw new ArgumentException($"ID posiljaoca:{poruka.PosiljalacId} i ID korisnika:{userId} koji brise poruku nisu isti!");
+
+            try
+            {
+                _context.Poruke.Remove(poruka);
+                await _context.SaveChangesAsync();
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e, "Greska prilikom brisanja poruke iz base.");
+                throw;
+            }
+
+            return new NoContentResult();
+        }
+        public async Task<PorukaDto> UpdateMessageAsync(int chatId, int messageId, string message)
+        {
+            var chat = await _context.Chatovi.FindAsync(chatId);
+            if (chat == null)
+                throw new KeyNotFoundException($"Chat sa ID {chatId} nije pronađen");
+
+            //ili samo ovo?
+            //var poruka = await _context.Poruke.FirstOrDefaultAsync(m => m.Id == messageId);
+
+            var poruka = chat.Poruke.FirstOrDefault(m => m.Id == messageId);
+            if (poruka == null)
+                throw new KeyNotFoundException($"Poruka sa ID {messageId} ne postoji!");
+
+
+            try
+            {
+                await _context.SaveChangesAsync();
+
+            }
+            catch(DbUpdateConcurrencyException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Greska prilikom azuriranja teksta poruka za chatID: {chatId} i msgId:{messageId}");
+                throw;
+            }
+
+            var response= new PorukaDto();
+            return response;
+        }
+
     }
 }
