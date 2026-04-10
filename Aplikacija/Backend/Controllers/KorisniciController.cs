@@ -135,7 +135,9 @@ namespace WebTemplate.Controllers
             var currentUserRole = GetCurrentUserRole();
 
             // Provera da li korisnik menja svoj profil ili je admin
-            if (currentUserId != id && currentUserRole != UserRoles.Admin)
+            if (currentUserId != id) //&& currentUserRole != UserRoles.Admin)
+                return Forbid();
+            if (currentUserRole != UserRoles.Admin)
                 return Forbid();
 
             var korisnik = await _context.Korisnici.FindAsync(id);
@@ -216,15 +218,20 @@ namespace WebTemplate.Controllers
             bool isFirstUser = !await _context.Korisnici.AnyAsync();
 
 
+            string hash = _authService.HashPassword(korisnikDto.Password);
             var korisnik = new Korisnik
             {
                 Ime = korisnikDto.Ime,
                 Prezime = korisnikDto.Prezime,
                 Username = korisnikDto.Username,
                 Email = korisnikDto.Email,
-                PasswordHash = _authService.HashPassword(korisnikDto.Password),
+                PasswordHash = hash,
                 Role = isFirstUser ? UserRoles.Admin : UserRoles.User,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                //dodati atributi, da ne bi pucalo
+                Biografija="",
+                SlikaURL="",
+                Telefon=""
             };
 
             _context.Korisnici.Add(korisnik);
@@ -350,7 +357,7 @@ namespace WebTemplate.Controllers
             if (user == null)
                 return NotFound("Korisnik ne postoji");
 
-            if (!BCrypt.Net.BCrypt.Verify(dto.OldPassword, user.PasswordHash))
+            if (!_authService.VerifyPassword(dto.OldPassword,user.PasswordHash))
                 return BadRequest(new { message = "Trenutna šifra nije ispravna" });
             if (dto.NewPassword.Length < 6)
                 return BadRequest(new { message = "Prekratka sifra" });
