@@ -344,6 +344,7 @@ namespace WebTemplate.Services
 
             try
             {
+                poruka.Tekst = message;
                 await _context.SaveChangesAsync();
 
             }
