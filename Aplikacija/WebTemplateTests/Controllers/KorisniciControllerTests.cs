@@ -220,20 +220,7 @@ namespace WebTemplateTests.Controllers
         [Test]
         public async Task GetKorisnikByUsername_UserNotInDb_ResNotFound()
         {
-            _context.Korisnici.Add(new Korisnik
-            {
-                ID = 1,
-                Ime = "Petar",
-                Prezime = "Petrovic",
-                Username = "petarP",
-                Email = "petarPetrovic@gmail.com",
-                PasswordHash = "asdfghjkl123",
-                Role = UserRoles.User,
-                Biografija = "Cao svima ja sam petarP",
-                Telefon = "06555333",
-                SlikaURL = "http://provider/slike/petarP"
-            });
-            await _context.SaveChangesAsync();
+            await AddMultipleUsersAsync(10);
 
 
             var result = await _controller.GetKorisnikByUsername("petarPPdugaCarapa");
@@ -435,7 +422,7 @@ namespace WebTemplateTests.Controllers
         {
             int idAdmina = 99;
             MockCurrentUser(idAdmina, UserRoles.Admin);
-            await AddUserAsync(1, true);
+            await AddUserAsync(10, true);
 
             var result = await _controller.DeleteKorisnik(555) as ActionResult;
             Assert.That(result, Is.Not.Null);
@@ -480,7 +467,9 @@ namespace WebTemplateTests.Controllers
         [Test]
         public async Task UploadProfileImage_UserLoggedInNotInDb_ResNotFound()
         {
-            int testUserId = 1;
+            await AddMultipleUsersAsync(10);
+
+            int testUserId = 20;
             MockCurrentUser(testUserId, UserRoles.User);
 
             var fileMock = new Mock<IFormFile>();
@@ -530,7 +519,8 @@ namespace WebTemplateTests.Controllers
         [Test]
         public async Task PromoteToAdmin_UserNotInDB_ResNotFound()
         {
-            int userId = 1;
+            await AddMultipleUsersAsync(10);
+            int userId = 20;
             //ne mora da se mockuje trenutni korisnik
 
             var result = await _controller.PromoteToAdmin(userId) as NotFoundObjectResult;
