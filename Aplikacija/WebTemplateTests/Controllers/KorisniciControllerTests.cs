@@ -147,7 +147,7 @@ namespace WebTemplateTests.Controllers
         public async Task GetKorisnik_CurrUserNotAdmin_ResForbid()
         {
             int idKorisnika = 1;
-            MockCurrentUser(idKorisnika, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,idKorisnika, UserRoles.User);
 
             var result = await _controller.GetKorisnik(idKorisnika);
             Assert.That(result, Is.Not.Null);
@@ -161,7 +161,7 @@ namespace WebTemplateTests.Controllers
         public async Task GetKorisnik_CurrUserAdminNotInDb_ResNotFound()
         {
             int idKorisnika = 1;
-            MockCurrentUser(idKorisnika, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,idKorisnika, UserRoles.User);
 
             var result = await _controller.GetKorisnik(idKorisnika);
             Assert.That(result, Is.Not.Null);
@@ -175,7 +175,7 @@ namespace WebTemplateTests.Controllers
         public async Task GetKorisnik_CurrUserAdminInDb_ResUserInfoDTO()
         {
             int idKorisnika = 1;
-            MockCurrentUser(idKorisnika, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,idKorisnika, UserRoles.User);
 
             _context.Korisnici.Add(new Korisnik
             {
@@ -269,7 +269,7 @@ namespace WebTemplateTests.Controllers
         public async Task PutKorisnik_CurrUserNotAdmin_ResForbid()
         {
             int idKorisnika = 1;
-            MockCurrentUser(1, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,1, UserRoles.User);
 
             KorisnikUpdateDto dto = new KorisnikUpdateDto();
 
@@ -282,7 +282,7 @@ namespace WebTemplateTests.Controllers
         public async Task PutKorisnik_CurrUserAdminPhoneNumberIsCharacters_ResBadRequest()
         {
             int idKorisnika = 1;
-            MockCurrentUser(1, UserRoles.Admin);
+            HelperFunctions.MockCurrentUser(_controller,1, UserRoles.Admin);
             await AddUserAsync(idKorisnika, true);
 
             KorisnikUpdateDto dto = new KorisnikUpdateDto { Ime = "Petar", Prezime = "Petrovic", Bio = "Ja sam PP", Telefon = "asdasdjioij1o" };
@@ -297,7 +297,7 @@ namespace WebTemplateTests.Controllers
         public async Task PutKorisnik_CurrUserAdminCorrectDTOFormat_ResOk()
         {
             int idKorisnika = 1;
-            MockCurrentUser(1, UserRoles.Admin);
+            HelperFunctions.MockCurrentUser(_controller,1, UserRoles.Admin);
             await AddUserAsync(idKorisnika, true);
 
             KorisnikUpdateDto dto = new KorisnikUpdateDto { Ime = "Marko", Prezime = "Markovic", Bio = "Ja sam MM", Telefon = "06555333",Email="markom@outlook.com" };
@@ -409,7 +409,7 @@ namespace WebTemplateTests.Controllers
         public async Task DeleteKorisnik_UserIsNotAdmin_ResForbid()
         {
             int idAdmina = 99;
-            MockCurrentUser(idAdmina, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,idAdmina, UserRoles.User);
 
             var result = await _controller.DeleteKorisnik(5) as ActionResult;
             Assert.That(result, Is.Not.Null);
@@ -421,7 +421,7 @@ namespace WebTemplateTests.Controllers
         public async Task DeleteKorisnik_UserIsAdminIncorrectId_ResNotFound()
         {
             int idAdmina = 99;
-            MockCurrentUser(idAdmina, UserRoles.Admin);
+            HelperFunctions.MockCurrentUser(_controller,idAdmina, UserRoles.Admin);
             await AddUserAsync(10, true);
 
             var result = await _controller.DeleteKorisnik(555) as ActionResult;
@@ -436,7 +436,7 @@ namespace WebTemplateTests.Controllers
         public async Task DeleteKorisnik_UserIsAdminCorrectId_ResNoContent()
         {
             int idAdmina = 99;
-            MockCurrentUser(idAdmina, UserRoles.Admin);
+            HelperFunctions.MockCurrentUser(_controller,idAdmina, UserRoles.Admin);
             //await AddUserAsync(1, false);
             await AddMultipleUsersAsync(5);
 
@@ -470,7 +470,7 @@ namespace WebTemplateTests.Controllers
             await AddMultipleUsersAsync(10);
 
             int testUserId = 20;
-            MockCurrentUser(testUserId, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,testUserId, UserRoles.User);
 
             var fileMock = new Mock<IFormFile>();
             var ms = new MemoryStream(Encoding.UTF8.GetBytes("Test image data"));
@@ -492,7 +492,7 @@ namespace WebTemplateTests.Controllers
         public async Task UploadProfileImage_ValidImage_ReturnsOkAndUpdatesUser()
         {
             int testUserId = 1;
-            MockCurrentUser(testUserId, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,testUserId, UserRoles.User);
 
             await AddUserAsync(1,false);
 
@@ -615,23 +615,23 @@ namespace WebTemplateTests.Controllers
         }
         #endregion Tests
 
-        private void MockCurrentUser(int userId, string role)
-        {
-            var claims = new List<Claim>
-                            {
-                                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-                                new Claim(ClaimTypes.Role, role)
-                            };
+        //private void MockCurrentUser(_controller,int userId, string role)
+        //{
+        //    var claims = new List<Claim>
+        //                    {
+        //                        new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+        //                        new Claim(ClaimTypes.Role, role)
+        //                    };
 
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
+        //    var identity = new ClaimsIdentity(claims, "TestAuthType");
+        //    var claimsPrincipal = new ClaimsPrincipal(identity);
 
-            //ako je controller vec inicijalizovan, ne bi trebalo da pravi problem (i hope)
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext { User = claimsPrincipal },
-            };
-        }
+        //    //ako je controller vec inicijalizovan, ne bi trebalo da pravi problem (i hope)
+        //    _controller.ControllerContext = new ControllerContext
+        //    {
+        //        HttpContext = new DefaultHttpContext { User = claimsPrincipal },
+        //    };
+        //}
 
         private async Task AddUserAsync(int id, bool admin)
         {

@@ -57,7 +57,7 @@ namespace WebTemplateTests.Controllers
         public async Task GetOglasiByKorisnik_CurrUserDBEmpty_ResEmptyList()
         {
             int userId = 1;
-            MockCurrentUser(userId,UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,userId,UserRoles.User);
 
 
             var result = await _controller.GetOglasiByKorisnik();
@@ -82,7 +82,7 @@ namespace WebTemplateTests.Controllers
             Assert.That(proveraLista, Is.Not.Null);
             Assert.That(proveraLista.Count, Is.EqualTo(numberOfOglasi));
 
-            MockCurrentUser(userId, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,userId, UserRoles.User);
 
 
             var result = await _controller.GetOglasiByKorisnik();
@@ -170,7 +170,7 @@ namespace WebTemplateTests.Controllers
         public async Task PostOglas_NullDTO_ExceptionThrown()
         {
             int korisnikID = 1;
-            MockCurrentUser(korisnikID, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,korisnikID, UserRoles.User);
             _context.Korisnici.Add(new Korisnik
             {
                 ID = korisnikID,
@@ -194,7 +194,7 @@ namespace WebTemplateTests.Controllers
         public async Task PostOglas_UserNotInDB_ResUnauthorized()
         {
             int korisnikID = 1;
-            MockCurrentUser(korisnikID, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,korisnikID, UserRoles.User);
 
             var createDto = new OglasCreateDto
             {
@@ -221,7 +221,7 @@ namespace WebTemplateTests.Controllers
         public async Task PostOglas_CleanPath_ResCreatedAtAction()
         {
             int korisnikID = 1;
-            MockCurrentUser(korisnikID, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,korisnikID, UserRoles.User);
             _context.Korisnici.Add(new Korisnik
             {
                 ID = korisnikID,
@@ -295,7 +295,7 @@ namespace WebTemplateTests.Controllers
         public async Task DeleteOglas_CleanPath_ResNoContent()
         {
             int idKorisnika = 1;
-            MockCurrentUser(idKorisnika, UserRoles.Admin);
+            HelperFunctions.MockCurrentUser(_controller,idKorisnika, UserRoles.Admin);
             await AddOglasi(1, 1, 1);
 
             var result = await _controller.DeleteOglas(1);
@@ -326,7 +326,7 @@ namespace WebTemplateTests.Controllers
         [Test]
         public async Task DeleteOglasStatus_UserIsDeletingOthersOglas_ResForbid()
         {
-            MockCurrentUser(1, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,1, UserRoles.User);
             await AddOglasi(1, 999, 1);
 
             var result = await _controller.DeleteOglasStatus(1);
@@ -339,7 +339,7 @@ namespace WebTemplateTests.Controllers
         [Test]
         public async Task DeleteOglasStatus_CleanPath_ResNoContent()
         {
-            MockCurrentUser(1, UserRoles.User);
+            HelperFunctions.MockCurrentUser(_controller,1, UserRoles.User);
             await AddOglasi(1, 1, 1);
 
             var result = await _controller.DeleteOglasStatus(1);
@@ -357,23 +357,23 @@ namespace WebTemplateTests.Controllers
 
         #endregion Tests
 
-        private void MockCurrentUser(int userId, string role)
-        {
-            var claims = new List<Claim>
-                            {
-                                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-                                new Claim(ClaimTypes.Role, role)
-                            };
+        //private void HelperFunctions.MockCurrentUser(_controller,int userId, string role)
+        //{
+        //    var claims = new List<Claim>
+        //                    {
+        //                        new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+        //                        new Claim(ClaimTypes.Role, role)
+        //                    };
 
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            var claimsPrincipal = new ClaimsPrincipal(identity);
+        //    var identity = new ClaimsIdentity(claims, "TestAuthType");
+        //    var claimsPrincipal = new ClaimsPrincipal(identity);
 
-            //ako je controller vec inicijalizovan, ne bi trebalo da pravi problem (i hope)
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext { User = claimsPrincipal },
-            };
-        }
+        //    //ako je controller vec inicijalizovan, ne bi trebalo da pravi problem (i hope)
+        //    _controller.ControllerContext = new ControllerContext
+        //    {
+        //        HttpContext = new DefaultHttpContext { User = claimsPrincipal },
+        //    };
+        //}
 
         private async Task AddOglasi(int count, int korisnikID,int kategorijaID)
         {

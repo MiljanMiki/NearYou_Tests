@@ -24,6 +24,7 @@ namespace WebTemplate.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PrijavaDto>>> GetPrijave()
         {
+
             var prijave = await _context.Prijave
                 .Include(p => p.Korisnik)
                 .Include(p => p.Oglas)
@@ -97,6 +98,7 @@ namespace WebTemplate.Controllers
 
             return Ok(prijave);
         }
+
         [HttpGet("Oglas/moje")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<PrijavaDto>>> GetMojePrijave()
@@ -131,7 +133,6 @@ namespace WebTemplate.Controllers
         [Authorize]
         public async Task<ActionResult<IEnumerable<PrijavaDtos>>> GetPrijaveByOglas(int oglasId)
         {
-            
             var oglasPostoji = await _context.Oglasi.AnyAsync(o => o.ID == oglasId);
             if (!oglasPostoji)
                 return NotFound("Oglas ne postoji.");
