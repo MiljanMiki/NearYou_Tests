@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebTemplateTests.Controllers
+namespace WebTemplateTests.Queries
 {
-    internal class KategorijeControllerTests
+    internal class OglasiSearchQueryTests
     {
     }
 }

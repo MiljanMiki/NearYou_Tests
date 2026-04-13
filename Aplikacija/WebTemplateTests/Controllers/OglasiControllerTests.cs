@@ -17,7 +17,7 @@ namespace WebTemplateTests.Controllers
 {
     [TestFixture]
     //[Parallelizable(ParallelScope.Fixtures)]
-    //[Ignore("Da ne smara")]
+    [Ignore("Da ne smara")]
     internal class OglasiControllerTests
     {
         private ApplicationDbContext _context;

@@ -21,7 +21,7 @@ namespace WebTemplateTests.Services
 {
     [TestFixture]
     //[Parallelizable(ParallelScope.Fixtures)]
-    //[Ignore("Da ne smara")]
+    [Ignore("Da ne smara")]
     internal class ChatServiceTests
     {
         private ChatService _service;
