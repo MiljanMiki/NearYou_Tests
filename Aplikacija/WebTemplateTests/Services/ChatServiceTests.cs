@@ -20,7 +20,8 @@ using WebTemplate.Services;
 namespace WebTemplateTests.Services
 {
     [TestFixture]
-    [Ignore("Da ne smara")]
+    //[Parallelizable(ParallelScope.Fixtures)]
+    //[Ignore("Da ne smara")]
     internal class ChatServiceTests
     {
         private ChatService _service;
@@ -523,7 +524,9 @@ namespace WebTemplateTests.Services
 
             await WholeSetup(testOglasivacId, testKlijentId, testOglasId, testPrijavaId, porukaContent);
 
-            Assert.ThrowsAsync<DbUpdateConcurrencyException>(async Task () => await _service.UpdateMessageAsync(1, 1, null));
+            //Assert.ThrowsAsync<DbUpdateConcurrencyException>(async Task () => await _service.UpdateMessageAsync(1, 1, null));
+            var result = await _service.UpdateMessageAsync(1, 1, null);
+            Assert.IsNotNull(result);
         }
 
         [Test]

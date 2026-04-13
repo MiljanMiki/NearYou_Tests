@@ -18,8 +18,7 @@ using WebTemplate.Services;
 namespace WebTemplateTests.Controllers
 {
     [TestFixture]
-    [Ignore("Da me ne bi smaralo trenutno")]
-    //[Parallelizable(ParallelScope.All)]
+    //[Parallelizable(ParallelScope.Fixtures)]
     internal class KorisniciControllerTests
     {
     #region Attributes
